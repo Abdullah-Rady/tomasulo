@@ -10,7 +10,7 @@ const loadLatency = 2
 const storeLatency =2
 const addRSize = 3
 const mulRSize = 2
-const storeBufferSize = 5
+const storeBufferSize = 3
 const loadBufferSize = 3
 const memorySize = 1024
 const instructionQueue = fs.readFileSync("a.txt" ,'utf8').split('\n').map((i)=> {
@@ -47,7 +47,15 @@ const addRS = new Array((addRSize)).fill(0)
 const mulRS = new Array((mulRSize)).fill(0)
 const GPR = new Array(32).fill({qi: 0, val: 0})
 const FPR = new Array(32).fill({qi: 0, val: 0})
+FPR[1]={qi:0,val:1}
+FPR[2]={qi:0,val:2}
+FPR[4]={qi:0,val:3}
+FPR[6]={qi:0,val:4}
+FPR[8]={qi:0,val:5}
+FPR[9]={qi:0,val:6}
 const memory = new Array(memorySize).fill(0)
+memory[33]=5
+memory[44]=4
 var waitingsToWrite = new PriorityQueue();
 let pc =0
 let clk=1
@@ -71,6 +79,7 @@ function loadEntry(address,latency,instQueueIdx){
     return {
      address : address,
      latency : latency,
+     status : "ready",
      instQueueIdx:instQueueIdx
     }
 }
@@ -81,6 +90,7 @@ function storeEntry(v, q, address,latency,instQueueIdx){
         q : q,
         address : address,
         latency : latency,
+        status : "ready",
         instQueueIdx:instQueueIdx
     }
 }
@@ -111,7 +121,22 @@ function checkRF(array, index){
     }
      
 }
-
+function checkStoreClash(address){
+    for(let i =0; i<storeBuffer.length; i++){
+        if(storeBuffer[i] !== 0 && storeBuffer[i].address === address){
+            return true
+        }
+    }
+    return false
+}
+function checkLoadClash(address){
+    for(let i =0; i<loadBuffer.length; i++){
+        if(loadBuffer[i] !== 0 && loadBuffer[i].address === address){
+            return true
+        }
+    }
+    return false
+}
 function issue(index){
 
     let inst = instructionQueue[index]
@@ -128,7 +153,8 @@ function issue(index){
             let first = checkRF(FPR, inst.source1.slice(1))
             let sec = checkRF(FPR, inst.source2.slice(1))
             isIssued = true;
-            addRS[pos] = RSentry(inst.op, first.flag ? first.val : null, sec.flag ? sec.val : null, !first.flag ? first.qi : null, !sec.flag ? sec.qi : null,addLatency,index)
+            let latency = inst.op === "ADD.D" ? addLatency : subLatency
+            addRS[pos] = RSentry(inst.op, first.flag ? first.val : null, sec.flag ? sec.val : null, !first.flag ? first.qi : null, !sec.flag ? sec.qi : null,latency,index)
             FPR[parseInt(inst.destination.slice(1))] = {qi :"A" + (pos+1), val: FPR[parseInt(inst.destination.slice(1))].val }
             if (!first.flag){
                   key = first.qi    
@@ -146,36 +172,41 @@ function issue(index){
             if(pos === -1){
                 return
             }
+            inst.issue = clk
             isIssued = true;
             let first1 = checkRF(FPR, inst.source1.slice(1))
             let sec1 = checkRF(FPR, inst.source2.slice(1))
-            mulRS[pos] = RSentry(inst.op, first1.flag ? first1.val : null, sec1.flag ? sec1.val : null, !first1.flag ? first1.qi : null, !sec1.flag ? sec1.qi : null,mulLatency,index)
+            let latency1 = inst.op === "MUL.D" ? mulLatency : divLatency
+            mulRS[pos] = RSentry(inst.op, first1.flag ? first1.val : null, sec1.flag ? sec1.val : null, !first1.flag ? first1.qi : null, !sec1.flag ? sec1.qi : null,latency1,index)
             FPR[parseInt(inst.destination.slice(1))] =  {qi :"M" + (pos+1), val: FPR[parseInt(inst.destination.slice(1))].val }      
-            if (!first.flag){
-                key = first.qi    
+            if (!first1.flag){
+                key = first1.qi    
                 noOfWaiting.set(key, noOfWaiting.has(key) ? noOfWaiting.get(key) + 1 : 1)
           }
-          if (!sec.flag){
-              key = sec.qi
+          if (!sec1.flag){
+              key = sec1.qi
               noOfWaiting.set(key, noOfWaiting.has(key) ? noOfWaiting.get(key) + 1 : 1)
           }      
             break    
 
         case "L.D":
+            
             pos = isEmpty(loadBuffer)
-            if(pos === -1){
+            if(pos === -1 || checkLoadClash(inst.address)){
                 return
             }
+            inst.issue = clk
             isIssued = true;
             loadBuffer[pos] = loadEntry(inst.address,loadLatency,index)
-            FPR[parseInt(inst.R1.slice(1))] =  {qi :"L" + (pos+1), val: FPR[parseInt(inst.destination.slice(1))].val } 
+            FPR[parseInt(inst.R1.slice(1))] =  {qi :"L" + (pos+1), val: FPR[parseInt(inst.R1.slice(1))].val } 
             break
 
         case "S.D":
             pos = isEmpty(storeBuffer)
-            if(pos === -1){
+            if(pos === -1|| checkStoreClash(inst.address)|| checkLoadClash(inst.address)){
                 return
             }
+            inst.issue = clk
             isIssued = true;
             let store = checkRF(FPR, inst.R1.slice(1))  
             storeBuffer[pos] = storeEntry(store.flag ? store.val : null, !store.flag ? store.qi : null ,inst.address,storeLatency,index)
@@ -187,8 +218,35 @@ function issue(index){
             break;
     }
 }
+function getPriotity(tag){
+    let priority = 0;
+    for(let i =0; i< addRS.length; i++){
+        if((addRS[i].qj === tag && addRS[i].qk==null)|| (addRS[i].qk === tag && addRS[i].qj==null)){
+            priority++;
+        }
+        else if(addRS[i].qj === tag && addRS[i].qk === tag){
+            priority+=0.5;
+        }
+    }
+    for(let i =0; i< mulRS.length; i++){
+        if((mulRS[i].qj === tag && mulRS[i].qk==null)|| (mulRS[i].qk === tag && mulRS[i].qj==null)){
+            priority++;
+        }
+        else if(mulRS[i].qj === tag && mulRS[i].qk === tag){
+            priority+=0.5;
+        }
+    }
+    for(let i =0; i< storeBuffer.length; i++){
+        if(storeBuffer[i].qj === tag){
+            priority++;
+        }
+    }
+    return priority;
+}
+
 function execute(){
     for(let i =0; i< addRS.length; i++){
+        //console.log(addRS[i])
         if (addRS[i].status === "ready"){
             addRS[i].status = "executing"
         }
@@ -201,12 +259,13 @@ function execute(){
             }
         }
         else if (addRS[i].status === "executed"){
-            let priority = noOfWaiting.has("A" + (i+1)) ? noOfWaiting.get("A" + (i+1)) : 0
-            waitingsToWrite.enqueue({instQueueIdx: addRS[i].instQueueIdx, val:addRS[i].vj+addRS[i].vk,qi: "A" + (i+1)},priority)
+            let priority = getPriotity("A" + (i+1))
+             waitingsToWrite.enqueue({instQueueIdx: addRS[i].instQueueIdx, val:addRS[i].vj+addRS[i].vk,qi: "A" + (i+1)},priority)
             addRS[i].status = "writing"
         }
     }
     for(let i =0; i< mulRS.length; i++){
+        //console.log(mulRS[i])
         if (mulRS[i].status === "ready"){
             mulRS[i].status = "executing"
         }
@@ -220,12 +279,13 @@ function execute(){
             }
         }
         else if (mulRS[i].status === "executed"){
-            let priority = noOfWaiting.has("M" + (i+1)) ? noOfWaiting.get("M" + (i+1)) : 0
+            let priority = getPriotity("M" + (i+1))
             waitingsToWrite.enqueue({instQueueIdx: mulRS[i].instQueueIdx, val:mulRS[i].vj*mulRS[i].vk,qi: "M" + (i+1)},priority)
             mulRS[i] .status = "writing"
         }
     }
     for(let i =0; i< loadBuffer.length; i++){
+        (loadBuffer[i])
         if (loadBuffer[i].status === "ready"){
             loadBuffer[i].status = "executing"
         }
@@ -239,7 +299,7 @@ function execute(){
             } 
         }
         else if (loadBuffer[i].status === "executed"){
-            let priority = noOfWaiting.has("L" + (i+1)) ? noOfWaiting.get("L" + (i+1)) : 0
+            let priority = getPriotity("L" + (i+1))
             waitingsToWrite.enqueue({instQueueIdx: loadBuffer[i].instQueueIdx, val: memory[loadBuffer[i].address],qi: "L" + (i+1)},priority)
             loadBuffer[i].status = "writing"
         }
@@ -294,6 +354,12 @@ function WriteBack(){
             storeBuffer[i].q = null
         }
     }
+    for(let i = 0 ; i <FPR.length; i++){
+        if (FPR[i].qi === inst.qi){
+            FPR[i].val = inst.val
+            FPR[i].qi = 0
+        }
+    }
     let letter = inst.qi[0]
     switch(letter){
         case "A": addRS[parseInt(inst.qi.slice(1))-1]=0;break;
@@ -303,6 +369,12 @@ function WriteBack(){
       
     }
 }
+//let u = 0;
+/*notes
+first check FIFO priority in the class
+then check the priority of the instruction
+test store
+*/
 while (finisedItems < instructionQueue.length) {
     if (pc < instructionQueue.length){
         issue(pc)
