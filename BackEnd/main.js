@@ -251,7 +251,8 @@ function execute(){
             addRS[i].status = "executing"
         }
         else if(addRS[i].status === "executing" && addRS[i].qj === null && addRS[i].qk === null){
-            if (addRS[i].latency==addLatency)instructionQueue[addRS[i].instQueueIdx].executionComplete.i=clk
+            let toComplete = addRS[i].op =="ADD.D"?addLatency:subLatency
+            if (addRS[i].latency==toComplete)instructionQueue[addRS[i].instQueueIdx].executionComplete.i=clk
             addRS[i].latency--;
             if(addRS[i].latency === 0){
                 instructionQueue[addRS[i].instQueueIdx].executionComplete.j=clk
@@ -265,12 +266,13 @@ function execute(){
         }
     }
     for(let i =0; i< mulRS.length; i++){
-        //console.log(mulRS[i])
+        console.log(mulRS[i])
         if (mulRS[i].status === "ready"){
             mulRS[i].status = "executing"
         }
         else if(mulRS[i].status === "executing" && mulRS[i].qj === null && mulRS[i].qk === null){
-            if (mulRS[i].latency==mulLatency)instructionQueue[mulRS[i].instQueueIdx].executionComplete.i=clk
+            let toComplete = mulRS[i].op =="MUL.D"?mulLatency:divLatency
+            if (mulRS[i].latency==toComplete)instructionQueue[mulRS[i].instQueueIdx].executionComplete.i=clk
             mulRS[i].latency--;
             if(mulRS[i].latency === 0){
                  //finished executing
@@ -375,7 +377,8 @@ first check FIFO priority in the class
 then check the priority of the instruction
 test store
 */
-while (finisedItems < instructionQueue.length) {
+while (finisedItems< instructionQueue.length) {
+    //u++
     if (pc < instructionQueue.length){
         issue(pc)
         if (isIssued){
