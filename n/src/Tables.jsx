@@ -15,9 +15,12 @@ const loadBufferR = [];
 const addRSR = [];
 const mulRSR = [];
 
-let max = run(instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, mulRSR);
+let max;
 
-console.log(instructionQueueR);
+const call = (memory, instructions) => {
+  max = run(instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, mulRSR, memory, instructions);
+
+}
 
 const gridStyle = { height: 400 };
 
@@ -156,12 +159,19 @@ function FPRTable({ cycle }) {
 }
 
 
-
-
-const Tables = ({cycle, table, handelClick, handleChange, setCycleZero}) => {
+const Tables = ({cycle, table, handelClick, handleChange, setCycleZero, memory, instructions}) => {
 
   const [animate, setAnimate] = useState(false)
+  const [loading, setLoading] = useState(true)
   const interval = useRef()
+
+  useEffect(() => {
+    call(memory, instructions)
+    setLoading(false)
+    return () => {
+      console.log("");
+    };
+  }, [])
 
     const handleKeyDown = ({ key }) => {
         if (key === "ArrowRight") {
@@ -202,7 +212,7 @@ const Tables = ({cycle, table, handelClick, handleChange, setCycleZero}) => {
     }, [])
     
 
-  return (
+  return (!loading?
     <div className="w-full">
           {/* NAV */}
           <div className="mt-8">
@@ -301,7 +311,7 @@ const Tables = ({cycle, table, handelClick, handleChange, setCycleZero}) => {
           </button>
           </div>
         </div>
-  )
+  : <></>)
 }
 
 export default Tables
