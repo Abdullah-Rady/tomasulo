@@ -38,11 +38,15 @@ function App() {
 
   }
 
+  const setCycleZero = () => {
+    setCycle(0)
+  }
+
   return (
     <div className="App bg-black w-full h-full">
       <div className="w-full h-full flex flex-col items-center justify-center">
         <div className="w-8/12 ">
-         { show ? <Tables cycle={cycle} table={table} handelClick={handelClick} handleChange={handleChange}/> : <CodeArea setShow={setShow} setInput={setInput} />}
+         { show ? <Tables cycle={cycle} table={table} handelClick={handelClick} handleChange={handleChange} setCycleZero={setCycleZero}/> : <CodeArea setShow={setShow} setInput={setInput} />}
         </div>
       </div>
     </div>

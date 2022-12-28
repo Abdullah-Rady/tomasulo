@@ -389,6 +389,6 @@ while (finisedItems< instructionQueue.length) {
     execute()
     WriteBack()
     console.log(`----------------------------------------------------------clockCycle${clk}----------------------------------------------------------`)
-    console.log(instructionQueue)
+    console.log(addRS)
     clk++;
 }

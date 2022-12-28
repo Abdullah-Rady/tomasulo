@@ -4,6 +4,9 @@ import ReactDataGrid from "@inovua/reactdatagrid-community";
 import "@inovua/reactdatagrid-community/index.css";
 import "@inovua/reactdatagrid-community/theme/default-dark.css";
 import { useEffect } from 'react';
+import { BsFillPlayFill, BsFillPauseFill } from 'react-icons/bs'
+import { useState } from 'react';
+import { useRef } from 'react';
 
 const instructionQueueR = [];
 const FPRR = [];
@@ -19,13 +22,10 @@ console.log(instructionQueueR);
 const gridStyle = { height: 400 };
 
 function InstructionQueueTable({ cycle }) {
-    const ren = (value, rowIndex, name) => <span style={{ color: (cycle==0 || instructionQueueR[cycle - 1][rowIndex][name] != instructionQueueR[cycle][rowIndex][name]) ? 'lightgreen' : 'inherit' }}>{value}</span>
+    
+  const ren = (value, rowIndex, name) => <span style={{ color: (cycle==0 || instructionQueueR[cycle - 1][rowIndex][name] != instructionQueueR[cycle][rowIndex][name]) ? 'lightgreen' : 'inherit' }}>{value}</span>
 
     
-    // const ren = (a) => {
-    //     console.log(a);
-    // return (<span style={{ color: 'lightgreen'}}>{value}</span>)
-// }
 
   const columns = [
     { name: "op", header: "op", defaultFlex: 1 },
@@ -158,7 +158,10 @@ function FPRTable({ cycle }) {
 
 
 
-const Tables = ({cycle, table, handelClick, handleChange}) => {
+const Tables = ({cycle, table, handelClick, handleChange, setCycleZero}) => {
+
+  const [animate, setAnimate] = useState(false)
+  const interval = useRef()
 
     const handleKeyDown = ({ key }) => {
         if (key === "ArrowRight") {
@@ -169,6 +172,24 @@ const Tables = ({cycle, table, handelClick, handleChange}) => {
             handleChange(0, max)
         }
     }
+
+    const animate1 = () => {
+      setAnimate(true);
+      interval.current = setInterval(() => {
+        handleChange(1, max)
+      }, 1000)
+    }
+
+    const stopAnimation = () => {
+      clearInterval(interval.current)
+      setAnimate(false);
+
+    }
+
+    const reset = () => {
+      setCycleZero()
+    }
+    
 
 
     useEffect(() => {
@@ -252,13 +273,30 @@ const Tables = ({cycle, table, handelClick, handleChange}) => {
           </div>
           <div className="flex justify-end mt-4">
 
-          <button onClick={() => handleChange(0, max)} className="px-4 py-2 bg-a rounded-md text-t  hover:bg-b hover:text-white mr-2">
+            {
+              cycle != 0 ? <button onClick={reset} className={` flex flex-row items-center px-4 py-2 bg-a rounded-md text-t mr-2 ${  animate ? "cursor-no-drop bg-gray-300 hover:bg-gray-300 hover:text-t" : "hover:bg-b hover:text-white "}`}>Reset</button> :<></>  
+            }
+
+          {
+            !animate ?  <button onClick={animate1} className={` flex flex-row items-center px-4 py-2 bg-a rounded-md text-t mr-2 hover:bg-b hover:text-white`}>
+            <BsFillPlayFill className='mr-1' />
+            Animate
+          </button> :
+          <button onClick={stopAnimation} className={` flex flex-row items-center px-4 py-2 bg-a rounded-md text-t mr-2 hover:bg-b hover:text-white`}>
+          <BsFillPauseFill className='mr-1' />
+          Stop
+        </button>
+
+          }
+         
+
+          <button onClick={() => handleChange(0, max)} className={`px-4 py-2 bg-a rounded-md text-t mr-2 ${ cycle == 0 || animate ? "cursor-no-drop bg-gray-300 hover:bg-gray-300 hover:text-t" : "hover:bg-b hover:text-white "}`}>
             Previous cycle
           </button>
-          <button onClick={() => handleChange(1, max)} className="px-4 py-2 bg-a rounded-md text-t hover:bg-b hover:text-white mr-2">
+          <button onClick={() => handleChange(1, max)} className={`px-4 py-2 bg-a rounded-md text-t mr-2 ${ cycle == max - 2 || animate ? "cursor-no-drop bg-gray-300 hover:bg-gray-300 hover:text-t" : "hover:bg-b hover:text-white "}`}>
             Next cycle
           </button>
-          <button onClick={() => handleChange(2, max)} className="px-4 py-2 bg-a rounded-md text-t hover:bg-b hover:text-white mr-2">
+          <button onClick={() => handleChange(2, max)} className={`px-4 py-2 bg-a rounded-md text-t mr-2 ${ cycle == max - 2 || animate ?  "cursor-no-drop bg-gray-300 hover:bg-gray-300 hover:text-t" : "hover:bg-b hover:text-white "}`}>
             Step
           </button>
           </div>
