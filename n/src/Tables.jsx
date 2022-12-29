@@ -290,7 +290,7 @@ const Tables = ({cycle, table, handelClick, handleChange, setCycleZero, memory, 
           {
             !animate ?  <button onClick={animate1} className={` flex flex-row items-center px-4 py-2 bg-a rounded-md text-t mr-2 hover:bg-b hover:text-white`}>
             <BsFillPlayFill className='mr-1' />
-            Animate
+            Play
           </button> :
           <button onClick={stopAnimation} className={` flex flex-row items-center px-4 py-2 bg-a rounded-md text-t mr-2 hover:bg-b hover:text-white`}>
           <BsFillPauseFill className='mr-1' />
