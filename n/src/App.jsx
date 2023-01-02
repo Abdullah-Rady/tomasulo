@@ -6,7 +6,9 @@ function App() {
   const [show, setShow] = useState(false);
   const [table, setTable] = useState(0);
   const [cycle, setCycle] = useState(0);
-  const [instructions, setInstructions] = useState("L.D F6,33\nL.D F2,44\nMUL.D F0,F2,F4\nSUB.D F8,F6,F2\nDIV.D F10,F0,F6\nADD.D F6,F8,F2");
+  const [instructions, setInstructions] = useState(
+    "L.D F6,33\nL.D F2,44\nMUL.D F0,F2,F4\nSUB.D F8,F6,F2\nDIV.D F10,F0,F6\nADD.D F6,F8,F2"
+  );
   const [memory, setMemory] = useState([]);
 
   const handelClick = (n) => {
@@ -41,6 +43,7 @@ function App() {
               setCycleZero={setCycleZero}
               memory={memory}
               instructions={instructions}
+              setShow={setShow}
             />
           ) : (
             <CodeArea

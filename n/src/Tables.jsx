@@ -199,6 +199,7 @@ const Tables = ({
   setCycleZero,
   memory,
   instructions,
+  setShow,
 }) => {
   const [animate, setAnimate] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -385,6 +386,14 @@ const Tables = ({
           }`}
         >
           Step
+        </button>
+      </div>
+      <div className="flex justify-center">
+        <button
+          className="text-white px-4 py-2 bg-a rounded-md hover:bg-b hover:shadow-lg w-50 mx-auto"
+          onClick={() => setShow(false)}
+        >
+          Back
         </button>
       </div>
     </div>
