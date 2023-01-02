@@ -2,9 +2,9 @@ const fs = require('fs');
 const {PriorityQueue} = require('./PriorityQueue')
 const prompt = require("prompt-sync")({ sigint: true });
 
-const addLatency = 2
+const addLatency = 4
 const subLatency = 2
-const mulLatency = 10
+const mulLatency = 6
 const divLatency = 40
 const loadLatency = 2
 const storeLatency =2
@@ -45,23 +45,17 @@ const storeBuffer = new Array((storeBufferSize)).fill(0)
 const loadBuffer = new Array((loadBufferSize)).fill(0)
 const addRS = new Array((addRSize)).fill(0)
 const mulRS = new Array((mulRSize)).fill(0)
-const GPR = new Array(32).fill({qi: 0, val: 0})
 const FPR = new Array(32).fill({qi: 0, val: 0})
-FPR[1]={qi:0,val:1}
-FPR[2]={qi:0,val:2}
-FPR[4]={qi:0,val:3}
-FPR[6]={qi:0,val:4}
-FPR[8]={qi:0,val:5}
-FPR[9]={qi:0,val:6}
-const memory = new Array(memorySize).fill(0)
-memory[33]=5
-memory[44]=4
+const memory = new Array(memorySize).fill(0)    
+memory[0] = 1
+memory[1] = 5
+
 var waitingsToWrite = new PriorityQueue();
-let pc =0
-let clk=1
-let finisedItems = 0
-let isIssued = false;
 let noOfWaiting = new Map();
+let pc =0;
+let finisedItems = 0;
+let clk=1
+let isIssued = false;
 function RSentry( op, vj, vk, qj, qk,latency,instQueueIdx){
     return {
      op : op,
@@ -122,15 +116,21 @@ function checkRF(array, index){
      
 }
 function checkStoreClash(address){
+    console.log('ssssssssssss')
     for(let i =0; i<storeBuffer.length; i++){
+        console.log(storeBuffer[i].address)
+        console.log("ggggg",address)
         if(storeBuffer[i] !== 0 && storeBuffer[i].address === address){
+            console.log("clashed")
             return true
         }
     }
     return false
 }
 function checkLoadClash(address){
+    console.log('ssssssssssss')
     for(let i =0; i<loadBuffer.length; i++){
+        console.log("ggggg",address)
         if(loadBuffer[i] !== 0 && loadBuffer[i].address === address){
             return true
         }
@@ -192,7 +192,7 @@ function issue(index){
         case "L.D":
             
             pos = isEmpty(loadBuffer)
-            if(pos === -1 || checkLoadClash(inst.address)){
+            if(pos === -1 || checkStoreClash(inst.address)){
                 return
             }
             inst.issue = clk
@@ -210,7 +210,6 @@ function issue(index){
             isIssued = true;
             let store = checkRF(FPR, inst.R1.slice(1))  
             storeBuffer[pos] = storeEntry(store.flag ? store.val : null, !store.flag ? store.qi : null ,inst.address,storeLatency,index)
-            FPR[parseInt(inst.R1.slice(1))] =  {qi :"S" + (pos+1), val: FPR[parseInt(inst.destination.slice(1))].val } 
             if (!store.flag){
                 key = store.qi
                 noOfWaiting.set(key, noOfWaiting.has(key) ? noOfWaiting.get(key) + 1 : 1)
@@ -221,19 +220,19 @@ function issue(index){
 function getPriotity(tag){
     let priority = 0;
     for(let i =0; i< addRS.length; i++){
-        if((addRS[i].qj === tag && addRS[i].qk==null)|| (addRS[i].qk === tag && addRS[i].qj==null)){
+        if((addRS[i].qj === tag && addRS[i].qk==null)|| (addRS[i].qk === tag && addRS[i].qj==null)|| (addRS[i].qj === tag && addRS[i].qk === tag)){
             priority++;
         }
-        else if(addRS[i].qj === tag && addRS[i].qk === tag){
-            priority+=0.5;
+        else if((addRS[i].qj === tag && addRS[i].qk != null) || (addRS[i].qk === tag && addRS[i].qj != null)){
+            priority+=0.01;
         }
     }
     for(let i =0; i< mulRS.length; i++){
-        if((mulRS[i].qj === tag && mulRS[i].qk==null)|| (mulRS[i].qk === tag && mulRS[i].qj==null)){
+        if((mulRS[i].qj === tag && mulRS[i].qk==null)|| (mulRS[i].qk === tag && mulRS[i].qj==null)|| (mulRS[i].qj === tag && mulRS[i].qk === tag)){
             priority++;
         }
-        else if(mulRS[i].qj === tag && mulRS[i].qk === tag){
-            priority+=0.5;
+        else if((mulRS[i].qj === tag && mulRS[i].qk != null)|| (mulRS[i].qk === tag && mulRS[i].qj != null)){
+            priority+=0.01;
         }
     }
     for(let i =0; i< storeBuffer.length; i++){
@@ -241,12 +240,12 @@ function getPriotity(tag){
             priority++;
         }
     }
+    console.log("priority of " + tag + " is " + priority)
     return priority;
 }
 
 function execute(){
     for(let i =0; i< addRS.length; i++){
-        //console.log(addRS[i])
         if (addRS[i].status === "ready"){
             addRS[i].status = "executing"
         }
@@ -261,12 +260,11 @@ function execute(){
         }
         else if (addRS[i].status === "executed"){
             let priority = getPriotity("A" + (i+1))
-             waitingsToWrite.enqueue({instQueueIdx: addRS[i].instQueueIdx, val:addRS[i].vj+addRS[i].vk,qi: "A" + (i+1)},priority)
+            waitingsToWrite.enqueue({instQueueIdx: addRS[i].instQueueIdx, val:addRS[i].vj+addRS[i].vk,qi: "A" + (i+1)},{i:priority,j:addRS[i].instQueueIdx})
             addRS[i].status = "writing"
         }
     }
     for(let i =0; i< mulRS.length; i++){
-        //console.log(mulRS[i])
         if (mulRS[i].status === "ready"){
             mulRS[i].status = "executing"
         }
@@ -275,14 +273,13 @@ function execute(){
             if (mulRS[i].latency==toComplete)instructionQueue[mulRS[i].instQueueIdx].executionComplete.i=clk
             mulRS[i].latency--;
             if(mulRS[i].latency === 0){
-                 //finished executing
                 instructionQueue[mulRS[i].instQueueIdx].executionComplete.j=clk
                 mulRS[i].status = "executed"
             }
         }
         else if (mulRS[i].status === "executed"){
             let priority = getPriotity("M" + (i+1))
-            waitingsToWrite.enqueue({instQueueIdx: mulRS[i].instQueueIdx, val:mulRS[i].vj*mulRS[i].vk,qi: "M" + (i+1)},priority)
+            waitingsToWrite.enqueue({instQueueIdx: mulRS[i].instQueueIdx, val:mulRS[i].vj*mulRS[i].vk,qi: "M" + (i+1)},{i:priority,j:mulRS[i].instQueueIdx})
             mulRS[i] .status = "writing"
         }
     }
@@ -295,14 +292,13 @@ function execute(){
             if (loadBuffer[i].latency==loadLatency)instructionQueue[loadBuffer[i].instQueueIdx].executionComplete.i=clk
             loadBuffer[i].latency--;
             if(loadBuffer[i].latency === 0){
-               //finished executing
                 instructionQueue[loadBuffer[i].instQueueIdx].executionComplete.j=clk
                 loadBuffer[i].status = "executed"
             } 
         }
         else if (loadBuffer[i].status === "executed"){
             let priority = getPriotity("L" + (i+1))
-            waitingsToWrite.enqueue({instQueueIdx: loadBuffer[i].instQueueIdx, val: memory[loadBuffer[i].address],qi: "L" + (i+1)},priority)
+            waitingsToWrite.enqueue({instQueueIdx: loadBuffer[i].instQueueIdx, val: memory[loadBuffer[i].address],qi: "L" + (i+1)},{i:priority,j:loadBuffer[i].instQueueIdx})
             loadBuffer[i].status = "writing"
         }
     }
@@ -314,11 +310,17 @@ function execute(){
             if(storeBuffer[i].latency==storeLatency)instructionQueue[storeBuffer[i].instQueueIdx].executionComplete.i=clk
             storeBuffer[i].latency--;
             if(storeBuffer[i].latency === 0){
-                memory[storeBuffer[i].address] = storeBuffer[i].v
                 instructionQueue[storeBuffer[i].instQueueIdx].executionComplete.j=clk
                 storeBuffer[i].status = "executed"
             }
         }
+         else if (storeBuffer[i].status === "executed"){
+                finisedItems++;
+                memory[storeBuffer[i].address] = storeBuffer[i].v;
+                instructionQueue[storeBuffer[i].instQueueIdx].writeResults=clk
+                storeBuffer[i]=0
+            }
+        
     }
 }
 function WriteBack(){
@@ -371,14 +373,14 @@ function WriteBack(){
       
     }
 }
-//let u = 0;
+let u = 0;
 /*notes
 first check FIFO priority in the class
 then check the priority of the instruction
 test store
 */
-while (finisedItems< instructionQueue.length) {
-    //u++
+while (finisedItems < instructionQueue.length) {
+    u++
     if (pc < instructionQueue.length){
         issue(pc)
         if (isIssued){
@@ -389,7 +391,9 @@ while (finisedItems< instructionQueue.length) {
     execute()
     WriteBack()
     console.log(`----------------------------------------------------------clockCycle${clk}----------------------------------------------------------`)
-    console.log(instructionQueue)
-    //console.log(addRS)
+    console.log("instructionQueee",instructionQueue)
+    console.log("addRs",addRS)
+    console.log("mulRs",mulRS)
+    console.log("Fprrrrrrr",FPR)
     clk++;
 }

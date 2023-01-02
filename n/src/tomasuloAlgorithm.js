@@ -49,14 +49,7 @@ export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, 
     const loadBuffer = new Array(loadBufferSize).fill(0);
     const addRS = new Array(addRSize).fill(0);
     const mulRS = new Array(mulRSize).fill(0);
-    const GPR = new Array(32).fill({ qi: 0, val: 0 });
     const FPR = new Array(32).fill({ qi: 0, val: 0 });
-    FPR[1] = { qi: 0, val: 1 };
-    FPR[2] = { qi: 0, val: 2 };
-    FPR[4] = { qi: 0, val: 3 };
-    FPR[6] = { qi: 0, val: 4 };
-    FPR[8] = { qi: 0, val: 5 };
-    FPR[9] = { qi: 0, val: 6 };
     const memory = new Array(memorySize).fill(0);
 
     if (memory1.length > 0) {
@@ -297,7 +290,7 @@ export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, 
         ) {
           priority++;
         } else if (mulRS[i].qj === tag && mulRS[i].qk === tag) {
-          priority += 0.5;
+          priority += 0.1;
         }
       }
       for (let i = 0; i < storeBuffer.length; i++) {
