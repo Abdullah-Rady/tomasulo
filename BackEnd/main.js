@@ -266,7 +266,7 @@ function execute(){
         }
     }
     for(let i =0; i< mulRS.length; i++){
-        console.log(mulRS[i])
+        //console.log(mulRS[i])
         if (mulRS[i].status === "ready"){
             mulRS[i].status = "executing"
         }
@@ -390,5 +390,6 @@ while (finisedItems< instructionQueue.length) {
     WriteBack()
     console.log(`----------------------------------------------------------clockCycle${clk}----------------------------------------------------------`)
     console.log(instructionQueue)
+    //console.log(addRS)
     clk++;
 }
