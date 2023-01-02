@@ -14,6 +14,7 @@ const storeBufferR = [];
 const loadBufferR = [];
 const addRSR = [];
 const mulRSR = [];
+const memoryR = []
 
 let max;
 
@@ -26,7 +27,8 @@ const call = (memory, instructions) => {
     addRSR,
     mulRSR,
     memory,
-    instructions
+    instructions,
+    memoryR
   );
 };
 
@@ -196,7 +198,11 @@ function MulRSTable({ cycle }) {
 }
 
 function FPRTable({ cycle }) {
+  const ren1 = (value, rowIndex, name) => <span>{`F${rowIndex}`}</span>;
+
   const columns = [
+    { name: "qi", header: "", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "qi") },
+
     { name: "qi", header: "qi", defaultFlex: 1 },
     { name: "val", header: "val", defaultFlex: 1 },
   ];
@@ -207,6 +213,28 @@ function FPRTable({ cycle }) {
       idProperty="id"
       columns={columns}
       dataSource={FPRR[cycle]}
+      style={gridStyle}
+    />
+  );
+}
+
+function MemoryTable({ cycle }) {
+
+  const columns = [
+    {
+      name: "address",
+      header: "Address",
+      defaultFlex: 1,
+    },
+    { name: "value", header: "Value", defaultFlex: 1 },
+  ];
+
+  return (
+    <ReactDataGrid
+      theme="default-dark"
+      idProperty="id"
+      columns={columns}
+      dataSource={memoryR[cycle]}
       style={gridStyle}
     />
   );
@@ -324,12 +352,22 @@ const Tables = ({
           </li>
           <li className="w-full">
             <button
-              className={`inline-block p-4 w-full rounded-tr-md bg-white hover:text-gray-700 hover:bg-gray-50 focus:outline-none dark:hover:text-white dark:bg-b dark:hover:bg-a ${
+              className={`inline-block p-4 w-full  bg-white hover:text-gray-700 hover:bg-gray-50 focus:outline-none dark:hover:text-white dark:bg-b dark:hover:bg-a ${
                 table == 5 ? "dark:bg-a text-white" : "dark:bg-b"
               }`}
               onClick={() => handelClick(5)}
             >
               Mul RS
+            </button>
+          </li>
+          <li className="w-full">
+            <button
+              className={`inline-block p-4 w-full rounded-tr-md bg-white hover:text-gray-700 hover:bg-gray-50 focus:outline-none dark:hover:text-white dark:bg-b dark:hover:bg-a ${
+                table == 5 ? "dark:bg-a text-white" : "dark:bg-b"
+              }`}
+              onClick={() => handelClick(6)}
+            >
+              Memory
             </button>
           </li>
         </ul>
@@ -342,8 +380,13 @@ const Tables = ({
         {table == 3 ? <LoadBufferTable cycle={cycle} /> : <></>}
         {table == 4 ? <AddRSTable cycle={cycle} /> : <></>}
         {table == 5 ? <MulRSTable cycle={cycle} /> : <></>}
+        {table == 6 ? <MemoryTable cycle={cycle} /> : <></>}
+
       </div>
       <div className="flex justify-end mt-4">
+
+        <div className="mr-auto text-gray-300 text-xl">{cycle + 1}</div>
+
         {cycle != 0 ? (
           <button
             onClick={reset}

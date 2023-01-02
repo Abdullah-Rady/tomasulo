@@ -1,7 +1,7 @@
 import PriorityQueue from "./PriorityQueue"; 
 
 
-export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, mulRSR, memory1, instruction, c) => {
+export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, mulRSR, memory1, instruction, memoryR) => {
     
 const addLatency = 4
 const subLatency = 2
@@ -413,16 +413,32 @@ while (finisedItems < instructionQueue.length) {
         return { ...a, i: a.executionComplete.i, j: a.executionComplete.j, d: a.R1 || a.destination };
       })
     );
-    FPRR.push([...FPR]);
-    storeBufferR.push([...storeBuffer]);
-    loadBufferR.push([...loadBuffer]);
-    addRSR.push([...addRS]);
-    mulRSR.push([...mulRS]);
+    FPRR.push(FPR.map((a) => {
+      return { ...a}
+    }));
+
+    storeBufferR.push(storeBuffer.map((a) => {
+      return { ...a}
+    }));
+
+    loadBufferR.push(loadBuffer.map((a) => {
+      return { ...a}
+    }));
+    addRSR.push(addRS.map((a) => {
+      return { ...a}
+    }));
+    mulRSR.push(mulRS.map((a) => {
+      return { ...a}
+    }));
+
+    memoryR.push(memory.map((a, i) => {return {address: i, value: a}}))
     // console.log(`----------------------------------------------------------clockCycle${clk}----------------------------------------------------------`)
     // console.log("instructionQueee",instructionQueue)
     // console.log("addRs",addRS)
     // console.log("mulRs",mulRS)
     // console.log("Fprrrrrrr",FPR)
+
+    
     clk++;
 
   };
