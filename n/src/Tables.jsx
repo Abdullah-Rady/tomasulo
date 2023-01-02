@@ -92,14 +92,23 @@ function InstructionQueueTable({ cycle }) {
 }
 
 function StoreBufferTable({ cycle }) {
+  const ren1 = (value, rowIndex, name) =>{ 
+    if (storeBufferR && storeBufferR[cycle]) 
+      console.log(storeBufferR[cycle][rowIndex]);
+    
+    return (<span>{`S${rowIndex + 1}`}</span>)}
+
   const columns = [
-    { name: "op", header: "op", defaultFlex: 1 },
-    { name: "source1", header: "Source 1", defaultFlex: 1 },
-    { name: "source2", header: "Source 2", defaultFlex: 1 },
-    { name: "R1", header: "R1", defaultFlex: 1 },
+    {
+      name: "status",
+      header: "Tag",
+      defaultFlex: 1,
+      render: ({ value, rowIndex }) => ren1(value, rowIndex, "status"),
+    },
+    
     { name: "address", header: "Address", defaultFlex: 1 },
-    { name: "issue", header: "Issue", defaultFlex: 1 },
-    { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
+    {name: "v", header: "v", defaultFlex: 1 },
+    {name: "q", header: "q", defaultFlex: 1 }
   ];
 
   return (
@@ -107,16 +116,23 @@ function StoreBufferTable({ cycle }) {
       theme="default-dark"
       idProperty="id"
       columns={columns}
-      dataSource={instructionQueueR[cycle]}
+      dataSource={storeBufferR[cycle]}
       style={gridStyle}
     />
   );
 }
 
 function LoadBufferTable({ cycle }) {
+  const ren1 = (value, rowIndex, name) => <span>{`L${rowIndex + 1}`}</span>;
+
   const columns = [
+    {
+      name: "status",
+      header: "Tag",
+      defaultFlex: 1,
+      render: ({ value, rowIndex }) => ren1(value, rowIndex, "status"),
+    },
     { name: "address", header: "Address", defaultFlex: 1 },
-    { name: "status", header: "Status", defaultFlex: 1 },
   ];
 
   return (
@@ -131,13 +147,15 @@ function LoadBufferTable({ cycle }) {
 }
 
 function AddRSTable({ cycle }) {
+  const ren1 = (value, rowIndex, name) => <span>{`A${rowIndex + 1}`}</span>;
+
   const columns = [
+    { name: "status", header: "Tag", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "status")  },
     { name: "op", header: "op", defaultFlex: 1 },
     { name: "vj", header: "vj", defaultFlex: 1 },
     { name: "vk", header: "vk", defaultFlex: 1 },
     { name: "qj", header: "qj", defaultFlex: 1 },
     { name: "qk", header: "qk", defaultFlex: 1 },
-    { name: "status", header: "Status", defaultFlex: 1 },
     { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
   ];
 
@@ -153,13 +171,16 @@ function AddRSTable({ cycle }) {
 }
 
 function MulRSTable({ cycle }) {
+
+  const ren1 = (value, rowIndex, name) => <span>{`M${rowIndex + 1}`}</span>;
+
   const columns = [
+    { name: "status", header: "Status", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "status") },
     { name: "op", header: "op", defaultFlex: 1 },
     { name: "vj", header: "vj", defaultFlex: 1 },
     { name: "vk", header: "vk", defaultFlex: 1 },
     { name: "qj", header: "qj", defaultFlex: 1 },
     { name: "qk", header: "qk", defaultFlex: 1 },
-    { name: "status", header: "Status", defaultFlex: 1 },
     { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
   ];
 
