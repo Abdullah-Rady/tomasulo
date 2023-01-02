@@ -20,10 +20,22 @@ class PriorityQueue {
         var contain = false;
      
         for (var i = 0; i < this.items.length; i++) {
-            if (this.items[i].priority > qElement.priority) {
-                this.items.splice(i, 0, qElement);
-                contain = true;
-                break;
+            if (this.items[i].priority.i <= qElement.priority.i) {
+                if (this.items[i].priority.i == qElement.priority.i) {
+                    if (this.items[i].priority.j < qElement.priority.j){
+                        this.items.splice(i+1, 0, qElement);
+                    }
+                    else{
+                        this.items.splice(i, 0, qElement);
+                    }
+                    contain = true;
+                    break;
+                }
+                else{
+                    this.items.splice(i, 0, qElement);
+                    contain = true;
+                    break;
+                }
             }
         }
      
@@ -60,7 +72,7 @@ isEmpty()
 printPQueue()
 {
     var str = "";
-    for (var i = 0; i < this.items.length; i++)
+    for (var i = 0; i < this.items.length; i++) 
         str += this.items[i].element + " ";
     return str;
 }
