@@ -1,7 +1,7 @@
 import PriorityQueue from "./PriorityQueue"; 
 
 
-export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, mulRSR) => {
+export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, mulRSR, memory1, instruction) => {
     const addLatency = 2;
     const subLatency = 2;
     const mulLatency = 10;
@@ -13,9 +13,9 @@ export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, 
     const storeBufferSize = 3;
     const loadBufferSize = 3;
     const memorySize = 1024;
-  
-    const s =
-      "L.D F6,33\nL.D F2,44\nMUL.D F0,F2,F4\nSUB.D F8,F6,F2\nDIV.D F10,F0,F6\nADD.D F6,F8,F2";
+
+
+    const s = instruction;
   
     const instructionQueue = s.split("\n").map((i) => {
       let s = i.trim().split(" ");
@@ -58,8 +58,17 @@ export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, 
     FPR[8] = { qi: 0, val: 5 };
     FPR[9] = { qi: 0, val: 6 };
     const memory = new Array(memorySize).fill(0);
-    memory[33] = 5;
-    memory[44] = 4;
+
+    if (memory1.length > 0) {
+      memory1.forEach(element => {
+        memory[parseInt(element.address)] = parseInt(element.value)
+      });
+    }else{
+      memory[33] = 5;
+      memory[44] = 4;
+
+    }
+
     var waitingsToWrite = new PriorityQueue();
     let pc = 0;
     let clk = 1;
@@ -278,7 +287,7 @@ export const run = (instructionQueueR, FPRR, storeBufferR, loadBufferR, addRSR, 
         ) {
           priority++;
         } else if (addRS[i].qj === tag && addRS[i].qk === tag) {
-          priority += 0.5;
+          priority += 0.1;
         }
       }
       for (let i = 0; i < mulRS.length; i++) {
