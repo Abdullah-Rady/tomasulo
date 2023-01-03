@@ -158,7 +158,7 @@ function AddRSTable({ cycle }) {
     { name: "vk", header: "vk", defaultFlex: 1 },
     { name: "qj", header: "qj", defaultFlex: 1 },
     { name: "qk", header: "qk", defaultFlex: 1 },
-    { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
+   // { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
   ];
 
   return (
@@ -177,13 +177,13 @@ function MulRSTable({ cycle }) {
   const ren1 = (value, rowIndex, name) => <span>{`M${rowIndex + 1}`}</span>;
 
   const columns = [
-    { name: "status", header: "Status", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "status") },
+    { name: "status", header: "Tag", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "status") },
     { name: "op", header: "op", defaultFlex: 1 },
     { name: "vj", header: "vj", defaultFlex: 1 },
     { name: "vk", header: "vk", defaultFlex: 1 },
     { name: "qj", header: "qj", defaultFlex: 1 },
     { name: "qk", header: "qk", defaultFlex: 1 },
-    { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
+    //{ name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
   ];
 
   return (
@@ -202,7 +202,6 @@ function FPRTable({ cycle }) {
 
   const columns = [
     { name: "qi", header: "", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "qi") },
-
     { name: "qi", header: "qi", defaultFlex: 1 },
     { name: "val", header: "val", defaultFlex: 1 },
   ];
@@ -450,14 +449,6 @@ const Tables = ({
           }`}
         >
           Step
-        </button>
-      </div>
-      <div className="flex justify-center">
-        <button
-          className="text-white px-4 py-2 bg-a rounded-md hover:bg-b hover:shadow-lg w-50 mx-auto"
-          onClick={() => setShow(false)}
-        >
-          Back
         </button>
       </div>
     </div>

@@ -132,21 +132,15 @@ function checkRF(array, index){
      
 }
 function checkStoreClash(address){
-    console.log('ssssssssssss')
     for(let i =0; i<storeBuffer.length; i++){
-        console.log(storeBuffer[i].address)
-        console.log("ggggg",address)
         if(storeBuffer[i] !== 0 && storeBuffer[i].address === address){
-            console.log("clashed")
             return true
         }
     }
     return false
 }
 function checkLoadClash(address){
-    console.log('ssssssssssss')
     for(let i =0; i<loadBuffer.length; i++){
-        console.log("ggggg",address)
         if(loadBuffer[i] !== 0 && loadBuffer[i].address === address){
             return true
         }
@@ -227,7 +221,6 @@ function issue(index){
             isIssued = true;
             let store = checkRF(FPR, inst.R1.slice(1))  
             storeBuffer[pos] = storeEntry(store.flag ? store.val : null, !store.flag ? store.qi : null ,inst.address,storeLatency,index)
-            console.log(storeBuffer[pos])
             if (!store.flag){
                 key = store.qi
                 noOfWaiting.set(key, noOfWaiting.has(key) ? noOfWaiting.get(key) + 1 : 1)
@@ -258,7 +251,6 @@ function getPriotity(tag){
             priority++;
         }
     }
-    console.log("priority of " + tag + " is " + priority)
     return priority;
 }
 
@@ -391,14 +383,13 @@ function WriteBack(){
       
     }
 }
-let u = 0;
+//let u = 0;
 /*notes
 first check FIFO priority in the class
 then check the priority of the instruction
 test store
 */
 while (finisedItems < instructionQueue.length) {
-    u++
     if (pc < instructionQueue.length){
         issue(pc)
         if (isIssued){
@@ -431,14 +422,7 @@ while (finisedItems < instructionQueue.length) {
       return { ...a}
     }));
 
-    memoryR.push(memory.map((a, i) => {return {address: i, value: a}}))
-    // console.log(`----------------------------------------------------------clockCycle${clk}----------------------------------------------------------`)
-    // console.log("instructionQueee",instructionQueue)
-    // console.log("addRs",addRS)
-    // console.log("mulRs",mulRS)
-    // console.log("Fprrrrrrr",FPR)
-
-    
+    memoryR.push(memory.map((a, i) => {return {address: i, value: a}}))    
     clk++;
 
   };
