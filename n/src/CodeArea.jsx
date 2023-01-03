@@ -1,56 +1,37 @@
 import React from "react";
 import { useState } from "react";
 
-const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
+const CodeArea = ({
+  setShow,
+  instructions,
+  setInstructions,
+  setMemory,
+  latency,
+  setLatency,
+  size,
+  setSize,
+  setFPR,
+}) => {
   const [memoryAddress, setMemoryAddress] = useState(0);
   const [memoryValue, setMemoryValue] = useState(0);
-  const [size, setSize] = useState({
-    loadBuffer: 2,
-    storeBuffer: 2,
-    addSubBuffer: 3,
-    mulDivBuffer: 2,
-    memory: 2048,
-  });
-
-  const [latency, setLatency] = useState({
-    load: 1,
-    store: 1,
-    add: 3,
-    sub: 3,
-    mul: 5,
-    div: 10,
-  });
-
-  const [FPR, setFPR] = useState({
-    number: 0,
-    value: 0,
-  });
+  const [FPRAddress, setFPRAddress] = useState(0);
+  const [FPRValue, setFPRValue] = useState(0);
 
   const handleSubmitMemory = () => {
-    if (memoryAddress && memoryValue) {
-      setMemory((prev) => [
-        ...prev,
-        { address: memoryAddress, value: memoryValue },
-      ]);
-    }
+    setMemory((prev) => [
+      ...prev,
+      { address: memoryAddress, value: memoryValue },
+    ]);
 
     setMemoryAddress(0);
     setMemoryValue(0);
   };
 
-  const handleSubmitChange = () => {
-    flag = true;
-    size.map((item) => {
-      if ((item < 1 || item > 5) && item !== "memory") flag = false;
-    });
-    if (size.memory < 1 || memoryAddress >= size.memory) flag = false;
-    if (flag) {
-      // set size
-    }
-  };
-
   const handleSubmitFPR = () => {
-    //set FPR
+    setFPR((prev) => [...prev, { address: FPRAddress, value: FPRValue }]);
+
+    setFPRAddress(0);
+    setFPRValue(0);
   };
   return (
     <div className="flex flex-col gap-y-4">
@@ -64,7 +45,9 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
               <input
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="memoryAddress"
-                onChange={(e) => setMemoryAddress(() => e.target.value)}
+                onChange={(e) =>
+                  setMemoryAddress(() => parseInt(e.target.value))
+                }
                 placeholder="Enter memory address"
                 type="number"
                 value={memoryAddress}
@@ -79,7 +62,7 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
               <input
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="memoryValue"
-                onChange={(e) => setMemoryValue(() => e.target.value)}
+                onChange={(e) => setMemoryValue(() => parseInt(e.target.value))}
                 placeholder="Enter memory value"
                 type="number"
                 value={memoryValue}
@@ -103,12 +86,12 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="fprAddressNumber"
                 onChange={(e) =>
-                  setFPR((prev) => ({ ...prev, number: e.target.value }))
+                  setFPRAddress((prev) => parseInt(e.target.value))
                 }
                 placeholder="Enter FPR number"
                 type="number"
-                value={FPR.number}
-                min="0"
+                value={FPRAddress}
+                min={0}
                 max={31}
               />
             </div>
@@ -119,12 +102,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
               <input
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="fprValue"
-                onChange={(e) =>
-                  setFPR((prev) => ({ ...prev, value: e.target.value }))
-                }
+                onChange={(e) => setFPRValue(() => parseInt(e.target.value))}
                 placeholder="Enter FPR value"
                 type="number"
-                value={FPR.value}
+                value={FPRValue}
               />
             </div>
           </div>
@@ -159,7 +140,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="loadLatency"
                 onChange={(e) =>
-                  setLatency((prev) => ({ ...prev, load: e.target.value }))
+                  setLatency((prev) => ({
+                    ...prev,
+                    load: parseInt(e.target.value),
+                  }))
                 }
                 placeholder="Load latency"
                 type="number"
@@ -175,7 +159,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="storeLatency"
                 onChange={(e) =>
-                  setLatency((prev) => ({ ...prev, store: e.target.value }))
+                  setLatency((prev) => ({
+                    ...prev,
+                    store: parseInt(e.target.value),
+                  }))
                 }
                 placeholder="Store latency"
                 type="number"
@@ -191,7 +178,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="addLatency"
                 onChange={(e) =>
-                  setLatency((prev) => ({ ...prev, add: e.target.value }))
+                  setLatency((prev) => ({
+                    ...prev,
+                    add: parseInt(e.target.value),
+                  }))
                 }
                 placeholder="Add latency"
                 type="number"
@@ -210,7 +200,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="subLatency"
                 onChange={(e) =>
-                  setLatency((prev) => ({ ...prev, sub: e.target.value }))
+                  setLatency((prev) => ({
+                    ...prev,
+                    sub: parseInt(e.target.value),
+                  }))
                 }
                 placeholder="Sub latency"
                 type="number"
@@ -226,7 +219,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="mulLatency"
                 onChange={(e) =>
-                  setLatency((prev) => ({ ...prev, mul: e.target.value }))
+                  setLatency((prev) => ({
+                    ...prev,
+                    mul: parseInt(e.target.value),
+                  }))
                 }
                 placeholder="Mul latency"
                 type="number"
@@ -242,7 +238,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="divLatency"
                 onChange={(e) =>
-                  setLatency((prev) => ({ ...prev, div: e.target.value }))
+                  setLatency((prev) => ({
+                    ...prev,
+                    div: parseInt(e.target.value),
+                  }))
                 }
                 placeholder="Div latency"
                 type="number"
@@ -260,7 +259,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="loadBuffer"
                 onChange={(e) =>
-                  setSize((prev) => ({ ...prev, loadBuffer: e.target.value }))
+                  setSize((prev) => ({
+                    ...prev,
+                    loadBuffer: parseInt(e.target.value),
+                  }))
                 }
                 placeholder="Buffer size"
                 type="number"
@@ -279,7 +281,7 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 onChange={(e) =>
                   setSize((prev) => ({
                     ...prev,
-                    storeBuffer: e.target.value,
+                    storeBuffer: parseInt(e.target.value),
                   }))
                 }
                 placeholder="Buffer size"
@@ -297,7 +299,10 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 className="text-white w-full mt-2 p-2 rounded-md bg-a focus:outline-none"
                 id="memorySize"
                 onChange={(e) =>
-                  setSize((prev) => ({ ...prev, memory: e.target.value }))
+                  setSize((prev) => ({
+                    ...prev,
+                    memory: parseInt(e.target.value),
+                  }))
                 }
                 placeholder="Buffer size"
                 type="number"
@@ -316,7 +321,7 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 onChange={(e) =>
                   setSize((prev) => ({
                     ...prev,
-                    addSubBuffer: e.target.value,
+                    addSubBuffer: parseInt(e.target.value),
                   }))
                 }
                 placeholder="Buffer size"
@@ -337,7 +342,7 @@ const CodeArea = ({ setShow, instructions, setInstructions, setMemory }) => {
                 onChange={(e) =>
                   setSize((prev) => ({
                     ...prev,
-                    mulDivBuffer: e.target.value,
+                    mulDivBuffer: parseInt(e.target.value),
                   }))
                 }
                 placeholder="Buffer size"

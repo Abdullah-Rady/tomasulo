@@ -11,6 +11,24 @@ function App() {
   );
   const [memory, setMemory] = useState([]);
 
+  const [FPR, setFPR] = useState([]);
+  const [size, setSize] = useState({
+    loadBuffer: 2,
+    storeBuffer: 2,
+    addSubBuffer: 3,
+    mulDivBuffer: 2,
+    memory: 1024,
+  });
+
+  const [latency, setLatency] = useState({
+    load: 1,
+    store: 1,
+    add: 3,
+    sub: 3,
+    mul: 5,
+    div: 10,
+  });
+
   const handelClick = (n) => {
     setTable(n);
   };
@@ -43,7 +61,9 @@ function App() {
               setCycleZero={setCycleZero}
               memory={memory}
               instructions={instructions}
-              setShow={setShow}
+              latency={latency}
+              size={size}
+              FPR={FPR}
             />
           ) : (
             <CodeArea
@@ -51,6 +71,11 @@ function App() {
               setInstructions={setInstructions}
               setMemory={setMemory}
               setShow={setShow}
+              latency={latency}
+              setLatency={setLatency}
+              size={size}
+              setSize={setSize}
+              setFPR={setFPR}
             />
           )}
         </div>

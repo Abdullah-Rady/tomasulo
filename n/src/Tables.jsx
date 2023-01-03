@@ -14,11 +14,11 @@ const storeBufferR = [];
 const loadBufferR = [];
 const addRSR = [];
 const mulRSR = [];
-const memoryR = []
+const memoryR = [];
 
 let max;
 
-const call = (memory, instructions) => {
+const call = (memory, instructions, latency, size, FPR) => {
   max = run(
     instructionQueueR,
     FPRR,
@@ -28,7 +28,10 @@ const call = (memory, instructions) => {
     mulRSR,
     memory,
     instructions,
-    memoryR
+    memoryR,
+    latency,
+    size,
+    FPR
   );
 };
 
@@ -94,11 +97,12 @@ function InstructionQueueTable({ cycle }) {
 }
 
 function StoreBufferTable({ cycle }) {
-  const ren1 = (value, rowIndex, name) =>{ 
-    if (storeBufferR && storeBufferR[cycle]) 
+  const ren1 = (value, rowIndex, name) => {
+    if (storeBufferR && storeBufferR[cycle])
       console.log(storeBufferR[cycle][rowIndex]);
-    
-    return (<span>{`S${rowIndex + 1}`}</span>)}
+
+    return <span>{`S${rowIndex + 1}`}</span>;
+  };
 
   const columns = [
     {
@@ -107,10 +111,10 @@ function StoreBufferTable({ cycle }) {
       defaultFlex: 1,
       render: ({ value, rowIndex }) => ren1(value, rowIndex, "status"),
     },
-    
+
     { name: "address", header: "Address", defaultFlex: 1 },
-    {name: "v", header: "v", defaultFlex: 1 },
-    {name: "q", header: "q", defaultFlex: 1 }
+    { name: "v", header: "v", defaultFlex: 1 },
+    { name: "q", header: "q", defaultFlex: 1 },
   ];
 
   return (
@@ -152,7 +156,12 @@ function AddRSTable({ cycle }) {
   const ren1 = (value, rowIndex, name) => <span>{`A${rowIndex + 1}`}</span>;
 
   const columns = [
-    { name: "status", header: "Tag", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "status")  },
+    {
+      name: "status",
+      header: "Tag",
+      defaultFlex: 1,
+      render: ({ value, rowIndex }) => ren1(value, rowIndex, "status"),
+    },
     { name: "op", header: "op", defaultFlex: 1 },
     { name: "vj", header: "vj", defaultFlex: 1 },
     { name: "vk", header: "vk", defaultFlex: 1 },
@@ -173,11 +182,15 @@ function AddRSTable({ cycle }) {
 }
 
 function MulRSTable({ cycle }) {
-
   const ren1 = (value, rowIndex, name) => <span>{`M${rowIndex + 1}`}</span>;
 
   const columns = [
-    { name: "status", header: "Status", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "status") },
+    {
+      name: "status",
+      header: "Status",
+      defaultFlex: 1,
+      render: ({ value, rowIndex }) => ren1(value, rowIndex, "status"),
+    },
     { name: "op", header: "op", defaultFlex: 1 },
     { name: "vj", header: "vj", defaultFlex: 1 },
     { name: "vk", header: "vk", defaultFlex: 1 },
@@ -201,7 +214,12 @@ function FPRTable({ cycle }) {
   const ren1 = (value, rowIndex, name) => <span>{`F${rowIndex}`}</span>;
 
   const columns = [
-    { name: "qi", header: "", defaultFlex: 1, render:({ value, rowIndex }) => ren1(value, rowIndex, "qi") },
+    {
+      name: "qi",
+      header: "",
+      defaultFlex: 1,
+      render: ({ value, rowIndex }) => ren1(value, rowIndex, "qi"),
+    },
 
     { name: "qi", header: "qi", defaultFlex: 1 },
     { name: "val", header: "val", defaultFlex: 1 },
@@ -219,7 +237,6 @@ function FPRTable({ cycle }) {
 }
 
 function MemoryTable({ cycle }) {
-
   const columns = [
     {
       name: "address",
@@ -248,14 +265,16 @@ const Tables = ({
   setCycleZero,
   memory,
   instructions,
-  setShow,
+  latency,
+  size,
+  FPR,
 }) => {
   const [animate, setAnimate] = useState(false);
   const [loading, setLoading] = useState(true);
   const interval = useRef();
 
   useEffect(() => {
-    call(memory, instructions);
+    call(memory, instructions, latency, size, FPR);
     setLoading(false);
     return () => {
       console.log("");
@@ -382,10 +401,8 @@ const Tables = ({
         {table == 4 ? <AddRSTable cycle={cycle} /> : <></>}
         {table == 5 ? <MulRSTable cycle={cycle} /> : <></>}
         {table == 6 ? <MemoryTable cycle={cycle} /> : <></>}
-
       </div>
       <div className="flex justify-end mt-4">
-
         <div className="mr-auto text-gray-300 text-xl">{cycle + 1}</div>
 
         {cycle != 0 ? (
@@ -450,14 +467,6 @@ const Tables = ({
           }`}
         >
           Step
-        </button>
-      </div>
-      <div className="flex justify-center">
-        <button
-          className="text-white px-4 py-2 bg-a rounded-md hover:bg-b hover:shadow-lg w-50 mx-auto"
-          onClick={() => setShow(false)}
-        >
-          Back
         </button>
       </div>
     </div>
