@@ -421,11 +421,11 @@ export const run = (
         if (storeBuffer[i].latency === 0) {
           instructionQueue[storeBuffer[i].instQueueIdx].executionComplete.j =
             clk;
+          memory[storeBuffer[i].address] = storeBuffer[i].v;
           storeBuffer[i].status = "executed";
         }
       } else if (storeBuffer[i].status === "executed") {
         finisedItems++;
-        memory[storeBuffer[i].address] = storeBuffer[i].v;
         instructionQueue[storeBuffer[i].instQueueIdx].writeResults = clk;
         storeBuffer[i] = 0;
       }
