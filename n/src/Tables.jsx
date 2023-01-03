@@ -267,38 +267,50 @@ const Tables = ({
   latency,
   size,
   FPR,
+  setCycle1
 }) => {
   const [animate, setAnimate] = useState(false);
   const [loading, setLoading] = useState(true);
-  const interval = useRef();
+  const interval = useRef([]);
+  const last = useRef(0);
 
   useEffect(() => {
     call(memory, instructions, latency, size, FPR);
     setLoading(false);
-    return () => {
-      console.log("");
-    };
+   
   }, []);
 
   const handleKeyDown = ({ key }) => {
     if (key === "ArrowRight") {
-      console.log("r");
       handleChange(1, max);
     } else if (key === "ArrowLeft") {
-      console.log("l");
       handleChange(0, max);
     }
   };
 
+
   const animate1 = () => {
     setAnimate(true);
-    interval.current = setInterval(() => {
-      handleChange(1, max);
-    }, 1000);
+    let j = 1;
+    for (let i = cycle; i < max - 1; i++) {
+      let t = setTimeout(() => {
+        setCycle1(i)
+      }, 1000 * j)
+      j++;
+
+      interval.current.push(t)
+    }
+    
   };
 
+
+
   const stopAnimation = () => {
-    clearInterval(interval.current);
+    
+    while(interval.current.length > 0){
+      clearTimeout( interval.current.pop())
+    }
+    
     setAnimate(false);
   };
 
@@ -312,7 +324,7 @@ const Tables = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  });
 
   return !loading ? (
     <div className="w-full">

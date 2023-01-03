@@ -35,7 +35,8 @@ function App() {
 
   const handleChange = (direction, max) => {
     if (direction === 1) {
-      if (cycle + 1 < max - 1) setCycle((prev) => prev + 1);
+      if (cycle + 1 < max - 1) 
+        setCycle((prev) => prev + 1);
     } else if (direction === 0) {
       if (cycle - 1 >= 0) setCycle((prev) => prev - 1);
     } else {
@@ -43,6 +44,11 @@ function App() {
       else setCycle(() => max - 2);
     }
   };
+
+  const setCycle1 = (c) => {
+    setCycle(c)
+  }
+
 
   const setCycleZero = () => {
     setCycle(0);
@@ -64,6 +70,7 @@ function App() {
               latency={latency}
               size={size}
               FPR={FPR}
+              setCycle1={setCycle1}
             />
           ) : (
             <CodeArea
