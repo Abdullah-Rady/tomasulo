@@ -21,15 +21,27 @@ class PriorityQueue {
      
         for (var i = 0; i < this.items.length; i++) {
             if (this.items[i].priority.i <= qElement.priority.i) {
-                if (this.items[i].priority.i == qElement.priority.i) {
-                    if (this.items[i].priority.j < qElement.priority.j){
-                        this.items.splice(i+1, 0, qElement);
-                    }
-                    else{
-                        this.items.splice(i, 0, qElement);
-                    }
+                if (this.items[i].priority.i === qElement.priority.i) {
+                    // if (this.items[i].priority.j < qElement.priority.j){
+                    
+                    //     this.items.splice(i+1, 0, qElement);
+                    // }
+                    // else{
+                    //     this.items.splice(i, 0, qElement);
+                    // }
+
+                    for(var k = i; k < this.items.length && this.items[k].priority.i === qElement.priority.i; k++){
+                        if(this.items[k].priority.j < qElement.priority.j){
+                            this.items.splice(i+1, 0, qElement);
+                        }
+                        else{
+                            this.items.splice(i, 0, qElement);  
+                        }
+
+
                     contain = true;
                     break;
+                    }
                 }
                 else{
                     this.items.splice(i, 0, qElement);

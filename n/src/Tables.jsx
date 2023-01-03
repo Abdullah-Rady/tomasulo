@@ -167,7 +167,7 @@ function AddRSTable({ cycle }) {
     { name: "vk", header: "vk", defaultFlex: 1 },
     { name: "qj", header: "qj", defaultFlex: 1 },
     { name: "qk", header: "qk", defaultFlex: 1 },
-    { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
+    // { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
   ];
 
   return (
@@ -187,7 +187,7 @@ function MulRSTable({ cycle }) {
   const columns = [
     {
       name: "status",
-      header: "Status",
+      header: "Tag",
       defaultFlex: 1,
       render: ({ value, rowIndex }) => ren1(value, rowIndex, "status"),
     },
@@ -196,7 +196,7 @@ function MulRSTable({ cycle }) {
     { name: "vk", header: "vk", defaultFlex: 1 },
     { name: "qj", header: "qj", defaultFlex: 1 },
     { name: "qk", header: "qk", defaultFlex: 1 },
-    { name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
+    //{ name: "writeResults", header: "Write on CDB", defaultFlex: 1 },
   ];
 
   return (
@@ -220,7 +220,6 @@ function FPRTable({ cycle }) {
       defaultFlex: 1,
       render: ({ value, rowIndex }) => ren1(value, rowIndex, "qi"),
     },
-
     { name: "qi", header: "qi", defaultFlex: 1 },
     { name: "val", header: "val", defaultFlex: 1 },
   ];
