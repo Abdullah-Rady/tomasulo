@@ -18,18 +18,16 @@ export default class PriorityQueue {
     {
         var qElement = new QElement(element, priority);
         var contain = false;
-     
+        //console.log("beforree",this.items)
         for (var i = 0; i < this.items.length; i++) {
             if (this.items[i].priority.i <= qElement.priority.i) {
                 if (this.items[i].priority.i == qElement.priority.i) {
-                    if (this.items[i].priority.j < qElement.priority.j){
-                        this.items.splice(i+1, 0, qElement);
-                    }
-                    else{
-                        this.items.splice(i, 0, qElement);
-                    }
-                    contain = true;
-                    break;
+                   while((i<this.items.length)&&(this.items[i].priority.j < qElement.priority.j) && (this.items[i].priority.i == qElement.priority.i)){
+                       i++;
+                   }
+                     this.items.splice(i, 0, qElement);
+                     contain = true;
+                     break;
                 }
                 else{
                     this.items.splice(i, 0, qElement);
@@ -38,10 +36,10 @@ export default class PriorityQueue {
                 }
             }
         }
-     
         if (!contain) {
             this.items.push(qElement);
         }
+        //console.log("after",this.items)
     }
     dequeue()
 {
