@@ -99,8 +99,6 @@ function InstructionQueueTable({ cycle }) {
 function StoreBufferTable({ cycle }) {
   const ren1 = (value, rowIndex, name) => {
     if (storeBufferR && storeBufferR[cycle])
-      console.log(storeBufferR[cycle][rowIndex]);
-
     return <span>{`S${rowIndex + 1}`}</span>;
   };
 
