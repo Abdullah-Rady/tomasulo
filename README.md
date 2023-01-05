@@ -1,5 +1,8 @@
 # Tomasulo
 Tomasulo's algorithm is a computer architecture hardware algorithm for dynamic scheduling of instructions that allows out-of-order execution and enables more efficient use of multiple execution units
+![Landing](https://user-images.githubusercontent.com/73742471/210854630-9ed60ca6-d99f-4144-9b20-ae8572b2aa51.png)
+![main](https://user-images.githubusercontent.com/73742471/210854642-f1c4214a-fea8-45ab-948d-043e12837452.png)
+![play](https://user-images.githubusercontent.com/73742471/210854646-64a80d5d-7297-4f44-b5d3-0f964c737d64.png)
 
 ## Backend 
 The backend was developed using javascript 
